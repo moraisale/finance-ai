@@ -1,9 +1,19 @@
-"use client"
+'use client'
 import React from 'react'
-
-//login page
+import { signInWithGoogle } from '../../../lib/authService';
+import { useRouter } from 'next/navigation';
 
 export const loginPage = () => {
+  const router = useRouter();
+  const loginWithGoogle = async () => {
+    try {
+        const user = await signInWithGoogle();
+        router.push("/dashboard");    
+      } catch (error: any) {
+        alert(error.message);
+    }
+  }
+
   return (
     <div className='bg-white h-screen w-screen flex items-center justify-center'>
       <div className='flex flex-col max-w-[384px] w-full'>
@@ -41,6 +51,7 @@ export const loginPage = () => {
 
         <div className="flex space-x-4 justify-between">
             <button
+                onClick={loginWithGoogle}
                 className="flex w-full items-center justify-center bg-white text-black border border-gray-400 font-semibold px-6 py-2 rounded-lg shadow-md  focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer"
             >
                 <img src="/google-icon.svg" alt="Google" className="w-5 h-5 mr-2" />
