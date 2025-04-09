@@ -1,6 +1,8 @@
 "use client"
 import React from 'react'
 
+//login page
+
 export const loginPage = () => {
   return (
     <div className='bg-white h-screen w-screen flex items-center justify-center'>
