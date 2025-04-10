@@ -1,13 +1,13 @@
-"use client"
+'use client'
+import AddExpenseModal from '@/components/AddExpenseModal'
 import React from 'react'
 
-export const dashboard = () => {
-
+const Dashboard = () => {
   return (
-    <div className='bg-white h-screen w-screen flex items-center justify-center'>
-      asd
+    <div className="h-screen w-screen flex items-center justify-center bg-white">
+      <AddExpenseModal />
     </div>
   )
 }
 
-export default dashboard
+export default Dashboard
