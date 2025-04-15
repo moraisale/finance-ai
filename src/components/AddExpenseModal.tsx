@@ -1,12 +1,41 @@
 'use client'
+import { useAuth } from '@/contexts/AuthContext'
+import { IExpense } from '@/types/IExpense'
 import React, { useState } from 'react'
+import { addExpense } from '../../lib/firebaseService'
 
 const AddExpenseModal = () => {
+  const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
+  const [newExpense, setNewExpense] = useState<IExpense>({} as IExpense)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { id, value } = e.target
+    setNewExpense(prev => ({
+      ...prev,
+      [id]: value
+    }))
+    console.log(id, value)
+  }
+
+
+  const createNewExpense = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!user) return alert('Você precisa estar logado.')
+  
+    try {
+      const newId = await addExpense(newExpense, user.uid)
+      alert('Gasto adicionado com sucesso! ID: ' + newId)
+      setIsOpen(false)
+      setNewExpense({} as IExpense)
+    } catch (error: any) {
+      console.error(error)
+      alert('Erro ao salvar o gasto.')
+    }
+  }
 
   return (
     <>
-      {/* Botão para abrir o modal */}
       <button
         onClick={() => setIsOpen(true)}
         className="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300"
@@ -14,13 +43,10 @@ const AddExpenseModal = () => {
         Toggle modal
       </button>
 
-      {/* Modal com backdrop transparente + blur */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/10 overflow-y-auto">
           <div className="relative p-4 w-full max-w-md">
-            {/* Modal content */}
             <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
-              {/* Modal header */}
               <div className="flex items-center justify-between p-4 md:p-5 border-b border-gray-200 dark:border-gray-600 rounded-t">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Create New Product
@@ -48,7 +74,6 @@ const AddExpenseModal = () => {
                 </button>
               </div>
 
-              {/* Modal body (formulário) */}
               <form className="p-4 md:p-5">
                 <div className="grid gap-4 mb-4 grid-cols-2">
                   <div className="col-span-2">
@@ -58,6 +83,8 @@ const AddExpenseModal = () => {
                     <input
                       type="text"
                       id="name"
+                      value={newExpense.name || ''}
+                      onChange={handleChange}
                       placeholder="Type product name"
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                       required
@@ -65,15 +92,17 @@ const AddExpenseModal = () => {
                   </div>
 
                   <div className="col-span-2 sm:col-span-1">
-                    <label htmlFor="price" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Price
+                    <label htmlFor="value" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Value
                     </label>
                     <input
-                      type="number"
-                      id="price"
+                      type="string"
+                      id="value"
+                      value={newExpense.value || ''}
+                      onChange={handleChange}
                       placeholder="$2999"
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                      required
+                        
                     />
                   </div>
 
@@ -83,6 +112,8 @@ const AddExpenseModal = () => {
                     </label>
                     <select
                       id="category"
+                      value={newExpense.category || ''}
+                      onChange={handleChange}
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                     >
                       <option value="">Select category</option>
@@ -99,6 +130,8 @@ const AddExpenseModal = () => {
                     </label>
                     <textarea
                       id="description"
+                      value={newExpense.description || ''}
+                      onChange={handleChange}
                       rows={4}
                       placeholder="Write product description here"
                       className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
@@ -107,7 +140,7 @@ const AddExpenseModal = () => {
                 </div>
 
                 <button
-                  type="submit"
+                  onClick={createNewExpense}
                   className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
                   <svg className="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -117,7 +150,7 @@ const AddExpenseModal = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Add new product
+                  Add new expense
                 </button>
               </form>
             </div>
